@@ -36,6 +36,11 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="(tabs)" />
+        {/* Opens on top of the tabs, with a back button in the header. */}
+        <Stack.Screen
+          name="create-exercise"
+          options={{ headerShown: true, title: 'New exercise', headerBackTitle: 'Back' }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="login" />
