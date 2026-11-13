@@ -2,6 +2,7 @@ import {StyleSheet, FlatList} from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Exercise } from '@/lib/types';
+import { ExerciseCard } from '@/components/exercise-card';
 
 const FAKE_EXERCISES: Exercise[] = [
     {
@@ -50,10 +51,7 @@ export default function ExercisesScreen(){
                 data={FAKE_EXERCISES}                              // clue: your fake list's name
                 keyExtractor={(item) => String(item.id)} // a unique key per row (ids!)
                 renderItem={({ item }) => (
-                    <ThemedView style={styles.card}>
-                        <ThemedText type="subtitle">{item.name}</ThemedText>   {/* clue: exercise name */}
-                        <ThemedText>{item.measureType} · {item.sets.length} sets</ThemedText>  {/* clue: how many are in a list? */}
-                    </ThemedView>
+                    <ExerciseCard exercise={item} />
                 )}
             />
         </ThemedView>
@@ -66,12 +64,4 @@ const styles = StyleSheet.create({
         paddingTop: 80,
         padding: 12
         },
-
-        card: {
-            padding: 12, 
-            borderWidth: 1, 
-            borderColor: 'gray', 
-            borderRadius: 8, 
-            marginBottom: 8, 
-        }
 });
