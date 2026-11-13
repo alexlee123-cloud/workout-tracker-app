@@ -26,6 +26,14 @@ export function setAuthToken(token: string | null) {
     authToken = token;
 }
 
+// Called when the server says our token has expired, so the app can log out
+// and show the login screen again. auth.tsx fills this in.
+let onUnauthorized: (() => void) | null = null;
+
+export function setOnUnauthorized(callback: (() => void) | null) {
+    onUnauthorized = callback;
+}
+
 // ---------- Errors ----------
 
 // A readable error the screens can show. `message` is the server's "detail" text;
@@ -77,10 +85,11 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
         // 401 means "not allowed". If we sent a token, it has expired (tokens last 60 minutes).
         // If we didn't (like on the login screen), the email or password was wrong.
         if (response.status === 401) {
-            const message = authToken
-                ? 'Your login has expired. Please log in again.'
-                : problem?.detail ?? 'Wrong email or password.';
-            throw new ApiError(401, message);
+            if (authToken) {
+                onUnauthorized?.();   // logged in, but the token expired: log out
+                throw new ApiError(401, 'Your login has expired. Please log in again.');
+            }
+            throw new ApiError(401, problem?.detail ?? 'Wrong email or password.');
         }
         throw new ApiError(
             response.status,

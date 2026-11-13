@@ -24,7 +24,14 @@ export default function RootLayout() {
 // when its guard is true, and redirects automatically when the guard changes:
 // log in and you land on the tabs; log out and you're back at login.
 function RootNavigator() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
+
+  // Still checking for a saved login: show nothing for a moment instead of
+  // flashing the login screen.
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isLoggedIn}>
