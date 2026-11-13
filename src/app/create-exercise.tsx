@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, Pressable } from 'react-native';
+import { StyleSheet, TextInput, Pressable, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import {useState} from 'react';
@@ -18,7 +18,9 @@ export default function CreateExerciseScreen() {
     
     
     return (
-        <ThemedView style={styles.container}>
+        <ThemedView style={styles.screen}>
+        {/* ScrollView lets the form scroll when the keyboard covers the bottom. */}
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
             
 
             <TextInput style={styles.input}
@@ -87,11 +89,15 @@ export default function CreateExerciseScreen() {
 
             {error ? <ThemedText>{error}</ThemedText> : null}
 
+        </ScrollView>
         </ThemedView>
     );
 }
 
 const styles = StyleSheet.create({
+    screen: {
+        flex: 1,
+    },
     input: {
         color: 'white',            // white text so it shows on the dark background
         borderWidth: 1,
@@ -107,7 +113,7 @@ const styles = StyleSheet.create({
     },
 
     container: {
-        flex: 1,
+        flexGrow: 1,   // flexGrow (not flex) so the ScrollView can scroll
         padding: 16, 
         paddingTop: 130, 
         gap: 12

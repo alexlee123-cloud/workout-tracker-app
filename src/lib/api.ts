@@ -91,10 +91,16 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
             }
             throw new ApiError(401, problem?.detail ?? 'Wrong email or password.');
         }
+        // If the server says which fields were wrong, show those, e.g.
+        // "name: must not be blank". Otherwise show its general message.
+        const fieldErrors = problem?.errors ?? {};
+        const fieldText = Object.entries(fieldErrors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join('\n');
         throw new ApiError(
             response.status,
-            problem?.detail ?? `Something went wrong (error ${response.status}).`,
-            problem?.errors ?? {},
+            fieldText || problem?.detail || `Something went wrong (error ${response.status}).`,
+            fieldErrors,
         );
     }
 
