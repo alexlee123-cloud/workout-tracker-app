@@ -8,12 +8,12 @@ import { ProblemDetail } from '@/lib/types';
 // ---------- Settings ----------
 
 // Where the backend runs. A phone can't use "localhost" (that would mean the phone
-// itself), so in goal 8 this becomes your Mac's Wi-Fi address, e.g. http://192.168.1.23:8081
-export const API_BASE_URL = 'http://localhost:8081';
+// itself), so in goal 8 this becomes your Mac's Wi-Fi address, e.g. http://192.168.1.23:8080 (port 8080, because Expo already uses 8081)
+export const API_BASE_URL = 'http://172.31.221.75:8080';
 
 // true  = screens get fake data, no server needed (what we use until goal 8)
 // false = talk to the real server
-export const USE_FAKE_DATA = true;
+export const USE_FAKE_DATA = false;
 
 // ---------- Login token ----------
 
@@ -74,8 +74,13 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
     if (!response.ok) {
         const problem = data as Partial<ProblemDetail> | null;
+        // 401 means "not allowed". If we sent a token, it has expired (tokens last 60 minutes).
+        // If we didn't (like on the login screen), the email or password was wrong.
         if (response.status === 401) {
-            throw new ApiError(401, 'Your login has expired. Please log in again.');
+            const message = authToken
+                ? 'Your login has expired. Please log in again.'
+                : problem?.detail ?? 'Wrong email or password.';
+            throw new ApiError(401, message);
         }
         throw new ApiError(
             response.status,

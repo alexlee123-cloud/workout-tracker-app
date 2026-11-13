@@ -2,10 +2,14 @@ import {useState} from 'react';
 import {TextInput, Pressable, StyleSheet} from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { login } from '@/lib/auth-api';
+import { useAuth } from '@/lib/auth';
 
 export default function LoginScreen(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const {signIn } = useAuth();
+    const [error, setError] = useState('');
 
     return (
         <ThemedView style={styles.container}>
@@ -15,6 +19,8 @@ export default function LoginScreen(){
                 value = {email}
                 onChangeText={setEmail}
                 placeholder="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
             />
 
             <TextInput style={styles.input}
@@ -22,11 +28,24 @@ export default function LoginScreen(){
                 onChangeText={setPassword}
                 placeholder="Password"
                 secureTextEntry
+                autoCapitalize="none"
             />
 
-            <Pressable onPress={() => console.log(email, password)} style={styles.button}>
+            <Pressable 
+                style={styles.button}
+                onPress={async () => {
+                    try {
+                        setError('');
+                        const response = await login(email.trim().toLowerCase(), password);
+                        signIn(response.accessToken);
+                    } catch (e) {
+                        setError(e instanceof Error ? e.message : 'Login failed');
+                    }
+                }}>
                 <ThemedText> Log In </ThemedText>
             </Pressable>
+
+            {error ? <ThemedText>{error}</ThemedText> : null}
 
         </ThemedView>
     );
