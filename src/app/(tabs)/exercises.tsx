@@ -10,14 +10,33 @@ import { getExercises } from '@/lib/exercises-api';
 export default function ExercisesScreen(){
 
     const [exercises, setExercises] = useState<Exercise[]>([]);   // starts as an empty list
+    const [refreshing, setRefreshing] = useState(false);          // true while pull-to-refresh spins
+    const [error, setError] = useState('');
+
+    // Loads the list from the server, and shows a message if that fails.
+    const load = useCallback(async () => {
+        try {
+            setError('');
+            setExercises(await getExercises());
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Could not load exercises');
+        }
+    }, []);
 
     // Like useEffect, but runs every time this tab comes back into view,
     // so a newly created exercise shows up when you return from the form.
     useFocusEffect(
         useCallback(() => {
-            getExercises().then(setExercises);
-        }, [])
+            load();
+        }, [load])
     );
+
+    // Pull down on the list to reload it.
+    async function onRefresh() {
+        setRefreshing(true);
+        await load();
+        setRefreshing(false);
+    }
 
     return (
         <ThemedView style={styles.container}>
@@ -33,6 +52,11 @@ export default function ExercisesScreen(){
                 renderItem={({ item }) => (
                     <ExerciseCard exercise={item} />
                 )}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                ListEmptyComponent={
+                    <ThemedText>{error || 'No exercises yet. Tap "+ New exercise" to add one.'}</ThemedText>
+                }
             />
         </ThemedView>
     );
