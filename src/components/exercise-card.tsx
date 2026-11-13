@@ -13,7 +13,7 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
     return (
         <ThemedView style={styles.card}>
             <ThemedText type="subtitle">{exercise.name}</ThemedText>
-            <ThemedText>{exercise.measureType} · {exercise.sets.length} sets</ThemedText>
+            <ThemedText>{exercise.measureType} · {exercise.sets.length} {exercise.sets.length === 1 ? 'Set' : 'Sets'} </ThemedText>
         </ThemedView>
     );
 }
