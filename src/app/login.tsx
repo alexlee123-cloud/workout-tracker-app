@@ -38,14 +38,14 @@ const styles = StyleSheet.create({
         flex: 1,                  // fill the whole screen
         padding: 24,
         gap: 12,                  // space between each item
-        justifyContent: 'center',      // clue: push everything to the vertical middle (a word in quotes)
+        justifyContent: 'center',
     },
     input: {
         color: 'white',            // white text so it shows on the dark background
         borderWidth: 1,
         borderColor: 'gray',
         borderRadius: 8,
-        padding: 12,             // clue: a number, no quotes (try 12)
+        padding: 12,
     },
     button: {
         backgroundColor: '#3b82f6', // a medium blue, close to the Expo icon's blue
