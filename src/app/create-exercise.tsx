@@ -6,16 +6,21 @@ import { MeasureType } from '@/lib/types';
 import { router } from 'expo-router';
 import { createExercise } from '@/lib/exercises-api';
 
+type SetInput = { weight: string, amount: string};
+
+
 // The Create Exercise form (version 1: one set).
 export default function CreateExerciseScreen() {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [measureType, setMeasureType] = useState<MeasureType>('REPS');
-    const [weight, setWeight] = useState('');
-    const [amount, setAmount] = useState('');   // reps, feet, or seconds
+    const [sets, setSets] = useState<SetInput[]>([{ weight: '', amount: '' }]);
     const [error, setError] = useState('');
     const amountLabel = measureType === 'REPS' ? 'Reps' : measureType === 'DISTANCE' ? 'Distance (ft)' : 'Time (seconds)';
     
+    function updateSet(index: number, field: keyof SetInput, value: string) {
+        setSets(sets.map((set, i) => (i === index ? { ...set, [field]: value } : set)));
+    }
     
     return (
         <ThemedView style={styles.screen}>
@@ -46,38 +51,48 @@ export default function CreateExerciseScreen() {
                 ))}
             </ThemedView>
 
-            <TextInput style={styles.input}
-                value={weight}
-                onChangeText={setWeight}
-                placeholder="Weight (lb)"
-                keyboardType="numeric"
-            />
+            {sets.map((set, index) => (
+                <ThemedView key={index} style={styles.row}>
+                    <ThemedText>Set {index + 1}</ThemedText>
+                    <TextInput style={[styles.input, styles.setInput]}
+                        value={set.weight}
+                        onChangeText={(text) => updateSet(index, 'weight', text)}
+                        placeholder="lb"
+                        keyboardType="numeric"
+                    />
+                    <TextInput style={[styles.input, styles.setInput]}
+                        value={set.amount}
+                        onChangeText={(text) => updateSet(index, 'amount', text)}
+                        placeholder={amountLabel}
+                        keyboardType="numeric"
+                    />
+                </ThemedView>
+            ))}
 
-            <TextInput style={styles.input}
-                value={amount}
-                onChangeText={setAmount}
-                placeholder={amountLabel}
-                keyboardType="numeric"
-            />
+            <Pressable style={styles.chip} onPress={() => setSets([...sets, { weight: '', amount: '' }])}>
+                <ThemedText>+ Add set</ThemedText>
+            </Pressable>
 
             <Pressable
                 style={styles.button}
                 onPress={async () => {
                     try {
                         setError('');
-                        const n = Number(amount);              // turns the text "5" into the number 5
                         await createExercise({
                             name: name.trim(),
                             description: description.trim(),
                             barbellExercise: false,
                             measureType: measureType,
-                            sets: [{
-                                weight: Number(weight) || 0,   // empty box means 0
-                                reps: measureType === 'REPS' ? n : null,
-                                distance: measureType === 'DISTANCE' ? n : null,
-                                timeSeconds: measureType === 'TIME' ? n : null,
-                                notes: null,
-                            }],
+                            sets: sets.map((set) => {
+                                const n = Number(set.amount);
+                                return {
+                                    weight: Number(set.weight) || 0,
+                                    reps: measureType === 'REPS' ? n : null,
+                                    distance: measureType === 'DISTANCE' ? n : null,
+                                    timeSeconds: measureType === 'TIME' ? n : null,
+                                    notes: null,
+                                };
+                            }),
                         });
                         router.back();                         // go back to the Exercises list
                     } catch (e) {
@@ -135,43 +150,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#3b82f6'
     },
 
-    
+    setInput: { flex: 1 },
 
 });
 
 
-
-/*
-export default function LoginScreen(){
-   
-    return (
-        <ThemedView style={styles.container}>
-            <ThemedText type = "title">Workout Tracker - Coach Screen</ThemedText>
-
-            <TextInput style={styles.input}
-                value = {email}
-                onChangeText={setEmail}
-                placeholder="Email"
-                autoCapitalize="none"
-                keyboardType="email-address"
-            />
-
-            <TextInput style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Password"
-                secureTextEntry
-                autoCapitalize="none"
-            />
-
-            
-
-            {error ? <ThemedText>{error}</ThemedText> : null}
-
-        </ThemedView>
-    );
-
-}
-
-
-*/
