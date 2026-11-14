@@ -3,13 +3,20 @@
 // Every screen calls small functions (like getExercises) that use `request` below,
 // so the server address, login token, and error handling live in just this file.
 
+import Constants from 'expo-constants';
+
 import { ProblemDetail } from '@/lib/types';
 
 // ---------- Settings ----------
 
 // Where the backend runs. A phone can't use "localhost" (that would mean the phone
-// itself), so in goal 8 this becomes your Mac's Wi-Fi address, e.g. http://192.168.1.23:8080 (port 8080, because Expo already uses 8081)
-export const API_BASE_URL = 'http://172.31.221.75:8080';
+// itself), so we need the Mac's Wi-Fi address, which changes from network to network.
+// Expo already knows it: the QR code points the phone at your Mac (e.g. "192.168.1.116:8081").
+// We take that address and swap Expo's port (8081) for the backend's (8080).
+// When the app is hosted on a real server later, set FIXED_SERVER_URL instead.
+const FIXED_SERVER_URL: string | null = null;
+const macAddress = Constants.expoConfig?.hostUri?.split(':')[0] ?? 'localhost';
+export const API_BASE_URL = FIXED_SERVER_URL ?? `http://${macAddress}:8080`;
 
 // true  = screens get fake data, no server needed (what we use until goal 8)
 // false = talk to the real server
@@ -64,17 +71,24 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
+    // Give up after 10 seconds, so a wrong address shows an error instead of hanging forever.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+
     let response: Response;
     try {
         response = await fetch(API_BASE_URL + path, {
             method: options.method ?? 'GET',
             headers,
             body: options.body === undefined ? undefined : JSON.stringify(options.body),
+            signal: controller.signal,
         });
     } catch {
+        clearTimeout(timer);
         // No reply at all: server not running, wrong address, or no Wi-Fi.
         throw new ApiError(0, "Can't reach the server. Is it running, and is the address right?");
     }
+    clearTimeout(timer);
 
     // Some replies have no body (e.g. 204 No Content).
     const text = await response.text();
