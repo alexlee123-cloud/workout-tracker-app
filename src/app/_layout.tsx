@@ -41,6 +41,10 @@ function RootNavigator() {
           name="create-exercise"
           options={{ headerShown: true, title: 'New exercise', headerBackTitle: 'Back' }}
         />
+        <Stack.Screen
+          name="create-routine"
+          options={{ headerShown: true, title: 'New routine', headerBackTitle: 'Back' }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="login" />

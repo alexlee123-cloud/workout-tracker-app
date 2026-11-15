@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, Pressable, ScrollView, Switch } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import {useState} from 'react';
@@ -17,6 +17,7 @@ export default function CreateExerciseScreen() {
     const [sets, setSets] = useState<SetInput[]>([{ weight: '', amount: '' }]);
     const [error, setError] = useState('');
     const amountLabel = measureType === 'REPS' ? 'Reps' : measureType === 'DISTANCE' ? 'Distance (ft)' : 'Time (seconds)';
+    const [barbell, setBarbell] = useState(false);
     
     function updateSet(index: number, field: keyof SetInput, value: string) {
         setSets(sets.map((set, i) => (i === index ? { ...set, [field]: value } : set)));
@@ -51,6 +52,11 @@ export default function CreateExerciseScreen() {
                 ))}
             </ThemedView>
 
+            <ThemedView style={styles.row}>
+                <ThemedText>Barbell exercise</ThemedText>
+                <Switch value={barbell} onValueChange={setBarbell} />
+            </ThemedView>
+
             {sets.map((set, index) => (
                 <ThemedView key={index} style={styles.row}>
                     <ThemedText>Set {index + 1}</ThemedText>
@@ -81,7 +87,7 @@ export default function CreateExerciseScreen() {
                         await createExercise({
                             name: name.trim(),
                             description: description.trim(),
-                            barbellExercise: false,
+                            barbellExercise: barbell,
                             measureType: measureType,
                             sets: sets.map((set) => {
                                 const n = Number(set.amount);
