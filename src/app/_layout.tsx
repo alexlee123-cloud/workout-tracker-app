@@ -45,6 +45,14 @@ function RootNavigator() {
           name="create-routine"
           options={{ headerShown: true, title: 'New routine', headerBackTitle: 'Back' }}
         />
+        <Stack.Screen
+          name="create-schedule"
+          options={{ headerShown: true, title: 'New schedule', headerBackTitle: 'Back' }}
+        />
+        <Stack.Screen
+          name="create-group"
+          options={{ headerShown: true, title: 'New group', headerBackTitle: 'Back' }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="login" />
