@@ -61,12 +61,13 @@ export class ApiError extends Error {
 type RequestOptions = {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';   // GET if left out
     body?: unknown;                               // turned into JSON for you
+    headers?: Record<string, string>;             // extra headers, if an endpoint needs one
 };
 
 // Calls the server and returns its JSON reply, typed as T.
 // Example: request<Exercise[]>('/api/coach/exercises')
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = { 'Content-Type': 'application/json', ...options.headers };
     if (authToken) {
         headers['Authorization'] = `Bearer ${authToken}`;
     }

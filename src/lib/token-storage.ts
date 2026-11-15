@@ -42,3 +42,19 @@ export function isTokenExpired(token: string): boolean {
         return true;
     }
 }
+
+// Who the token belongs to. The server puts a "roles" list in the token,
+// like ["COACH"] or ["ATHLETE"]. Returns null if it can't be read.
+export type Role = 'COACH' | 'ATHLETE';
+
+export function getTokenRole(token: string): Role | null {
+    try {
+        const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const { roles } = JSON.parse(atob(payload));
+        if (Array.isArray(roles) && roles.includes('COACH')) return 'COACH';
+        if (Array.isArray(roles) && roles.includes('ATHLETE')) return 'ATHLETE';
+        return null;
+    } catch {
+        return null;
+    }
+}

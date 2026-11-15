@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { login } from '@/lib/auth-api';
 import { useAuth } from '@/lib/auth';
+import { router } from 'expo-router';
 
 export default function LoginScreen(){
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export default function LoginScreen(){
 
     return (
         <ThemedView style={styles.container}>
-            <ThemedText type = "title">Workout Tracker - Coach Screen</ThemedText>
+            <ThemedText type = "title">Workout Tracker</ThemedText>
 
             <TextInput style={styles.input}
                 value = {email}
@@ -47,6 +48,10 @@ export default function LoginScreen(){
 
             {error ? <ThemedText>{error}</ThemedText> : null}
 
+            <Pressable onPress={() => router.push('/signup')}>
+                <ThemedText style={styles.link}>New here? Sign up</ThemedText>
+            </Pressable>
+
         </ThemedView>
     );
 
@@ -71,5 +76,10 @@ const styles = StyleSheet.create({
         padding: 14,
         borderRadius: 8,
         alignItems: 'center',     // centers the text inside the button
+    },
+    link: {
+        color: '#60a5fa',
+        textAlign: 'center',
+        marginTop: 8,
     },
 });

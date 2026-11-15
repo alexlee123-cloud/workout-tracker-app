@@ -3,7 +3,9 @@
 //
 // How it fits together:
 //   1. AuthProvider wraps the whole app (see src/app/_layout.tsx).
-//   2. Any screen can call useAuth() to get { isLoggedIn, signIn, signOut }.
+//   2. Any screen can call useAuth() to get { isLoggedIn, role, signIn, signOut }.
+//      role is 'COACH' or 'ATHLETE' (read from the token), so the app can show
+//      the right set of tabs.
 //   3. The root layout shows the login screen when isLoggedIn is false,
 //      and the tabs when it's true. It switches automatically.
 //   4. The token is saved on the device (token-storage.ts), so reopening the
@@ -12,10 +14,11 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 import { setAuthToken, setOnUnauthorized } from '@/lib/api';
-import { clearToken, isTokenExpired, loadToken, saveToken } from '@/lib/token-storage';
+import { clearToken, getTokenRole, isTokenExpired, loadToken, Role, saveToken } from '@/lib/token-storage';
 
 type AuthState = {
     isLoggedIn: boolean;
+    role: Role | null;                       // 'COACH', 'ATHLETE', or null when logged out
     isLoading: boolean;                      // true while checking for a saved token
     signIn: (accessToken: string) => void;   // call after a successful login
     signOut: () => void;
@@ -59,7 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn: token !== null, isLoading, signIn, signOut }}>
+        <AuthContext.Provider
+            value={{
+                isLoggedIn: token !== null,
+                role: token ? getTokenRole(token) : null,
+                isLoading,
+                signIn,
+                signOut,
+            }}>
             {children}
         </AuthContext.Provider>
     );

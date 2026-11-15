@@ -24,7 +24,10 @@ export default function RootLayout() {
 // when its guard is true, and redirects automatically when the guard changes:
 // log in and you land on the tabs; log out and you're back at login.
 function RootNavigator() {
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn, role, isLoading } = useAuth();
+  const isCoach = isLoggedIn && role === 'COACH';
+  const isAthlete = isLoggedIn && !isCoach;
+
 
   // Still checking for a saved login: show nothing for a moment instead of
   // flashing the login screen.
@@ -34,7 +37,10 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={isLoggedIn}>
+      {/* "/" for everyone: redirects to login, coach Home, or athlete Today (see index.tsx). */}
+      <Stack.Screen name="index" />
+      {/* Coaches: the coach tabs plus the "New ..." screens. */}
+      <Stack.Protected guard={isCoach}>
         <Stack.Screen name="(tabs)" />
         {/* Opens on top of the tabs, with a back button in the header. */}
         <Stack.Screen
@@ -54,8 +60,17 @@ function RootNavigator() {
           options={{ headerShown: true, title: 'New group', headerBackTitle: 'Back' }}
         />
       </Stack.Protected>
+      {/* Athletes: their own tabs (today's workout, the week, account). */}
+      <Stack.Protected guard={isAthlete}>
+        <Stack.Screen name="(athlete)" />
+      </Stack.Protected>
+      {/* Logged out: login and sign-up. */}
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="login" />
+        <Stack.Screen
+          name="signup"
+          options={{ headerShown: true, title: 'Sign up', headerBackTitle: 'Back' }}
+        />
       </Stack.Protected>
     </Stack>
   );

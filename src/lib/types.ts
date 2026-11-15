@@ -98,6 +98,45 @@ export type AthleteGroupRequest = {
     scheduleId?: number | null;  // the ? means this field can be left out entirely
 };
 
+// ---------- Sign-up ----------
+
+export type RegisterCoachRequest = {
+    email: string;
+    displayName: string;
+    password: string;            // at least 8 characters
+};
+
+export type RegisterAthleteRequest = RegisterCoachRequest & {
+    inviteCode: string;          // the group's code from the coach
+};
+
+// ---------- Athlete: logging a workout ----------
+// What the athlete actually did. Sets are numbered by their order in the list.
+
+export type CompletedSetRequest = {
+    weight: number;
+    reps: number | null;
+    distance: number | null;
+    timeSeconds: number | null;
+};
+
+export type CompletedExerciseRequest = {
+    exerciseId: number;
+    completedSets: CompletedSetRequest[];
+};
+
+export type CompletedRoutineRequest = {
+    routineId: number;
+    completedExercises: CompletedExerciseRequest[];
+};
+
+export type CompletedRoutine = {
+    id: number;
+    name: string;
+    description: string;
+    completedAt: string;         // a date-time like "2026-11-15T17:02:00Z"
+};
+
 // ---------- Errors ----------
 // When something goes wrong the server sends a "ProblemDetail".
 // Show `detail` to the user; `errors` maps a form field to its message.
