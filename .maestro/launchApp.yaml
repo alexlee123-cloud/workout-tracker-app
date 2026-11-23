@@ -1,0 +1,5 @@
+appId: host.exp.exponent
+---
+- launchApp
+- tapOn: "workout-tracker-app"
+- assertVisible: "Workout Tracker"
